@@ -1,7 +1,7 @@
 import os
 import time
-import msvcrt
 import math
+import curses
 
 def clear_screen():
     '''
