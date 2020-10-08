@@ -6,24 +6,31 @@ import time
 import npyscreen
 
 class MenuList(npyscreen.BoxTitle):
-    def when_value_edited(self):
-        self.parent.update_edit_content()
-
-    def when_check_value_changed(self):
-        self.parent.update_change_content()
-
-    def when_cursor_moved(self):
-        self.parent.update_cursor_content()
-
-    def when_check_cursor_moved(self):
-        self.parent.update_cursor_content()
-
-class ContentBox(npyscreen.BoxTitle):
     def create(self):
         pass
+    def when_value_edited(self):
+        self.parent.update_content_box()
 
-    def show_something(self, content):
-        self.values = content
+    # def when_cursor_moved(self):
+    #     val_list = self.get_values()
+    #     val_idx = self.get_value()
+    #     if val_idx == None:
+    #         val_idx = 0
+    #     val = val_list[val_idx]
+    #     self.parent.update_edit_content(val)
+
+class TimeBox(npyscreen.BoxTitle):
+    def create(self):
+        self.values = ["TimeBox"]
+
+    def show(self):    
+        self.display()
+
+class TimerBox(npyscreen.BoxTitle):
+    def create(self):
+        self.values = ["TimerBox"]
+
+    def show(self):    
         self.display()
 
 class MainForm(npyscreen.FormBaseNew):
@@ -33,24 +40,46 @@ class MainForm(npyscreen.FormBaseNew):
     def create(self):
         y,x = self.useable_space()
 
+        self.menu_items = ["Time", "Timer", "Exit"]
+
         self.menu_list = self.add(MenuList, 
                                   name = "Menu",
-                                  values = ["Time", "Timer", "Exit"],
+                                  values = self.menu_items,
                                   max_width = x // 4)
 
-        self.content_window = self.add(ContentBox,
-                                       name = "Content",
+        self.time_window = self.add(TimeBox,
+                                       name = "Time",
                                        relx = x // 4 + 5,
                                        rely = 2)
                                     
-    def update_edit_content(self):
-        self.content_window.show_something("edit")
+        self.timer_window = self.add(TimerBox,
+                                       name = "Timer",
+                                       relx = x // 4 + 5,
+                                       rely = 2)
+        self.update_content_box()
 
-    def update_change_content(self):
-        self.content_window.show_something("change")
+    def update_content_box(self):
+        '''
+        Update the content of current content box depending on 
+        menu_item. Jump into the box to edit stuff here.
+        '''
+        menu_idx = self.menu_list.get_value()
+        if menu_idx == None:
+            menu_idx = 0
+        menu_item = self.menu_items[menu_idx]
+        if menu_item == 'Time': 
+            self.time_window.show()
+        elif menu_item == 'Timer':
+            self.timer_window.show()
+        elif menu_item == 'Exit':
+            self.parentApp.switchForm(None)
+
+
+    def update_edit_content(self,val):
+        self.content_window.show_something([val])
 
     def update_cursor_content(self):
-        self.content_window.show_something("cursor")
+        self.content_window.show_something(["cursor"])
 
 class TestApp(npyscreen.NPSAppManaged):
     def onStart(self):
